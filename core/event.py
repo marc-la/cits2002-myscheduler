@@ -1,20 +1,25 @@
-from enum import Enum
+from myscheduler import *
+from process import Process
 
 class EventType(Enum):
-    PROCESS_START = 1
-    PROCESS_EXIT = 2
-    QUANTUM_EXPIRE = 3
-    IO_REQUEST = 4
-    IO_COMPLETE = 5
-    SLEEP_COMPLETE = 6
-    SPAWN = 7
-    WAIT_COMPLETE = 8
+    PROCESS_ARRIVAL = auto()
+    DISPATCH_COMPLETE = auto()
+    RUN_COMPLETE = auto()        # quantum expire OR syscall boundary reached
+    SYSCALL_INVOKED = auto()
+    IO_COMPLETE = auto()
+    SLEEP_COMPLETE = auto()
+    BLOCKED_TO_READY = auto()
+    PROCESS_EXIT = auto()
+    SPAWN = auto()
+    WAIT_COMPLETE = auto()
 
+@dataclass(order=True)
 class Event:
-    def __init__(self, time, event_type, process, extra=None):
-        self.time = time
-        self.event_type = event_type
-        self.process = process
-        self.extra = extra  # e.g., device info, child process, syscall args
-    def __lt__(self, other):
-        return self.time < other.time
+    time: int
+    order: int = field(compare=False)
+    type: EventType = field(compare=False)
+    process: Optional['Process'] = field(compare=False, default=None)
+    payload: Any = field(compare=False, default=None)
+
+    def __repr__(self):
+        return f"Event(time={self.time}, type={self.type}, pid={getattr(self.process,'pid',None)}, payload={self.payload})"
