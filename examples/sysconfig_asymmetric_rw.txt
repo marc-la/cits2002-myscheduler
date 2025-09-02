@@ -1,0 +1,6 @@
+# Asymmetric read/write speeds to test op-dependent durations
+device terminal  500Bps  100Bps
+device ssd       96000Bps 64000Bps
+device archive   3000Bps   500Bps
+device net1      12000Bps 24000Bps
+timequantum 100usec

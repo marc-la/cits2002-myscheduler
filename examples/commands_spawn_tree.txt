@@ -1,0 +1,12 @@
+# Parent spawns two children and waits
+parent
+    50usecs      spawn   workerA
+    60usecs      spawn   workerB
+    70usecs      wait
+    5000usecs    exit
+workerA
+    30usecs      write   terminal 50B
+    60usecs      exit
+workerB
+    10usecs      sleep   200usecs
+    50usecs      exit

@@ -1,0 +1,5 @@
+# Short sleeps and actions near quantum boundaries
+napper
+    95usecs      sleep   10usecs
+    110usecs     write   terminal 5B
+    120usecs     exit

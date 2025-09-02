@@ -1,0 +1,12 @@
+# Multiple reads/writes across devices to trigger arbitration and queueing
+bulkcopy
+    50usecs      read    hd       200000B
+    60usecs      write   hd       200000B
+    70usecs      read    net0     80000B
+    90usecs      write   net0     80000B
+    100usecs     exit
+terminalspam
+    10usecs      write   terminal 500B
+    20usecs      write   terminal 500B
+    30usecs      read    terminal 100B
+    200usecs     exit

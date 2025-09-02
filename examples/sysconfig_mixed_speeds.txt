@@ -1,0 +1,6 @@
+# Mixed speeds to test bus arbitration order (prefer higher read speed)
+device terminal  300Bps   150Bps
+device hd        48000Bps 48000Bps
+device net0      16000Bps  8000Bps
+device usb       2000Bps   2000Bps
+timequantum 100usec

@@ -1,0 +1,7 @@
+# Two processes contend for the same device; verify oldest request goes first
+proc1
+    40usecs      read    hd       120000B
+    300usecs     exit
+proc2
+    45usecs      read    hd       100000B
+    280usecs     exit

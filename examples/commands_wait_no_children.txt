@@ -1,0 +1,5 @@
+# Process calls wait with no children; should continue immediately
+loner
+    20usecs      wait
+    30usecs      write   terminal 10B
+    60usecs      exit

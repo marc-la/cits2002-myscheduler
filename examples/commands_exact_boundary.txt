@@ -1,0 +1,5 @@
+# Syscalls exactly at time-quantum boundaries
+edge
+    100usecs     write   terminal 10B
+    200usecs     read    terminal 5B
+    300usecs     exit

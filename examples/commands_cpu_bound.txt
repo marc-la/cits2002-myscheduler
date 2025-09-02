@@ -1,0 +1,5 @@
+# Two CPU-bound jobs that only exit after long CPU time; exercises preemption
+cpuA
+    100000usecs  exit
+cpuB
+    150000usecs  exit

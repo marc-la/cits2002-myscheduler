@@ -1,0 +1,6 @@
+# Large quantum to minimize preemption
+device terminal 200Bps 200Bps
+device hd       50000Bps 50000Bps
+device net0     12000Bps 12000Bps
+device tape      4000Bps  1000Bps
+timequantum 5000usec
