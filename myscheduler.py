@@ -40,10 +40,27 @@ from enum import Enum, auto
 from dataclasses import dataclass, field
 from collections import deque, defaultdict
 from typing import List, Optional, Any, Tuple
+from io.parser import parse_sysconfig, parse_commands
+from core.system import System
 
 
 # ----------------------------- Constants -----------------------------
 CONTEXT_SWITCH_IN = 5 # Ready -> Running (microseconds)
 CONTEXT_SWITCH_MOVES = 10 # Running->Blocked, Running->Ready, Blocked->Ready
 BUS_ACQUIRE_DELAY = 20 # time to first acquire data-bus (microseconds)
-CPU_SPEED_HZ = 2_000_000_000 # 2 GHz (not directly used)
+
+
+# ------------------------------- CLI ---------------------------------
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print("Usage: python myscheduler.py sysconfig-file commands-file")
+        sys.exit(1)
+    sysconfig_path = sys.argv[1]
+    commands_path = sys.argv[2]
+    devices, tq = parse_sysconfig(sysconfig_path)
+    commands = parse_commands(commands_path)
+    print(f"found {len(devices)} devices")
+    print(f"time quantum is {tq}")
+    print(f"found {len(commands)} commands")
+    s = System(devices, commands, time_quantum=tq)
+    s.start()
