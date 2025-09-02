@@ -1,5 +1,8 @@
-from myscheduler import *
-from process import Process
+from enum import Enum, auto
+from dataclasses import dataclass, field
+from typing import Any, Optional
+
+from core.process import Process
 
 class EventType(Enum):
     PROCESS_ARRIVAL = auto()
@@ -12,6 +15,7 @@ class EventType(Enum):
     PROCESS_EXIT = auto()
     SPAWN = auto()
     WAIT_COMPLETE = auto()
+    CPU_AVAILABLE = auto()
 
 @dataclass(order=True)
 class Event:

@@ -40,7 +40,7 @@ from enum import Enum, auto
 from dataclasses import dataclass, field
 from collections import deque, defaultdict
 from typing import List, Optional, Any, Tuple
-from io.parser import parse_sysconfig, parse_commands
+from simio.parser import parse_sysconfig, parse_commands
 from core.system import System
 
 

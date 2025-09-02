@@ -1,22 +1,24 @@
-# Process class
+from typing import Optional, List
 from core.syscall import SystemCall
-from myscheduler import *
+
 
 class Process:
     _pid_counter = 1
 
-    def __init__(self, command_name: str, syscalls: List[SystemCall], parent: Optional['Process']=None):
+    def __init__(self, command_name: str, syscalls: List[SystemCall], parent: Optional['Process'] = None):
         self.pid = Process._pid_counter
         Process._pid_counter += 1
         self.ppid = parent.pid if parent else None
         self.command_name = command_name
         self.syscalls = sorted(syscalls, key=lambda s: s.when)
-        self.pc = 0  # index into syscalls
-        self.state = 'NEW'  # NEW, READY, RUNNING, BLOCKED, EXIT
-        self.cpu_time_executed = 0  # how many microseconds of CPU this process has used
-        self.children: List[Process] = []
+        self.pc = 0
+        self.state = 'NEW'
+        self.cpu_time_executed = 0
+        self.children: List['Process'] = []
         self.waiting_for_children = False
-        self.blocked_reason = None
+        self.blocked_reason: Optional[str] = None
+        self.quantum_left = 0
+        self.has_acquired_bus = False
 
     def time_until_next_syscall(self) -> Optional[int]:
         if self.pc >= len(self.syscalls):
@@ -29,8 +31,8 @@ class Process:
             return self.syscalls[self.pc]
         return None
 
-    def advance_pc(self):
+    def advance_pc(self) -> None:
         self.pc += 1
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Process(pid={self.pid}, cmd={self.command_name}, state={self.state}, cpu_exec={self.cpu_time_executed}, pc={self.pc})"

@@ -1,5 +1,5 @@
-# SystemCall class
-from myscheduler import *
+from dataclasses import dataclass
+from typing import List
 
 @dataclass
 class SystemCall:

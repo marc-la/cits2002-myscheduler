@@ -1,7 +1,10 @@
 # Config + command file parser
-from myscheduler import *
+import re
+from typing import List, Tuple
+
 from core.device import Device
 from core.syscall import SystemCall
+
 
 def parse_sysconfig(path: str) -> Tuple[List[Device], int]:
     devices: List[Device] = []
