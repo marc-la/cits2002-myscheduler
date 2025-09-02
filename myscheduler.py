@@ -36,6 +36,7 @@ import re
 import math
 import heapq
 import sys
+import argparse
 from enum import Enum, auto
 from dataclasses import dataclass, field
 from collections import deque, defaultdict
@@ -52,15 +53,18 @@ BUS_ACQUIRE_DELAY = 20 # time to first acquire data-bus (microseconds)
 
 # ------------------------------- CLI ---------------------------------
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print("Usage: python myscheduler.py sysconfig-file commands-file")
-        sys.exit(1)
-    sysconfig_path = sys.argv[1]
-    commands_path = sys.argv[2]
+    parser = argparse.ArgumentParser(description='myscheduler (DES-based scheduler simulator)')
+    parser.add_argument('sysconfig', help='Path to sysconfig file')
+    parser.add_argument('commands', help='Path to commands file')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose logging of DES events')
+    args = parser.parse_args()
+
+    sysconfig_path = args.sysconfig
+    commands_path = args.commands
     devices, tq = parse_sysconfig(sysconfig_path)
     commands = parse_commands(commands_path)
     print(f"found {len(devices)} devices")
     print(f"time quantum is {tq}")
     print(f"found {len(commands)} commands")
-    s = System(devices, commands, time_quantum=tq)
+    s = System(devices, commands, time_quantum=tq, verbose=args.verbose)
     s.start()

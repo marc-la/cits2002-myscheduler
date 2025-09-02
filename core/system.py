@@ -16,10 +16,11 @@ BUS_ACQUIRE_DELAY = 20
 
 
 class System:
-    def __init__(self, devices: List[Device], commands: dict, time_quantum: int):
+    def __init__(self, devices: List[Device], commands: dict, time_quantum: int, verbose: bool = False):
         self.devices = {d.name: d for d in devices}
         self.commands = commands
         self.time_quantum = time_quantum
+        self.verbose = verbose
 
         # DES structures
         self.current_time = 0
@@ -41,6 +42,9 @@ class System:
         self._event_counter += 1
         ev = Event(time=int(time), order=self._event_counter, type=etype, process=process, payload=payload)
         heapq.heappush(self.event_queue, ev)
+        if self.verbose:
+            pid = getattr(process, 'pid', None)
+            print(f"[t={time}] enqueue {etype.name} pid={pid} payload={payload}")
         return ev
 
     def pop_event(self) -> Optional[Event]:
@@ -75,6 +79,9 @@ class System:
             if ev is None:
                 break
             self.current_time = ev.time
+            if self.verbose:
+                pid = getattr(ev.process, 'pid', None)
+                print(f"[t={self.current_time}] handle {ev.type.name} pid={pid} payload={ev.payload}")
             handler = {
                 EventType.PROCESS_ARRIVAL: self._handle_arrival,
                 EventType.DISPATCH_COMPLETE: self._handle_dispatch_complete,
@@ -100,6 +107,8 @@ class System:
         p = ev.process
         p.state = 'READY'
         self.scheduler.enqueue_ready(p)
+        if self.verbose:
+            print(f"  pid={p.pid} -> READY (arrival)")
         if self.scheduler.running is None:
             self._attempt_dispatch()
 
@@ -116,12 +125,16 @@ class System:
         self.push_event(dispatch_complete_time, EventType.DISPATCH_COMPLETE, process=next_proc)
         # CPU is busy performing the context switch-in
         self.cpu_busy_time += CONTEXT_SWITCH_IN
+        if self.verbose:
+            print(f"  dispatching pid={next_proc.pid} (ctx-in {CONTEXT_SWITCH_IN}us)")
         self.scheduler.running = next_proc
 
     def _handle_dispatch_complete(self, ev: Event):
         p = ev.process
         p.state = 'RUNNING'
         p.quantum_left = self.time_quantum
+        if self.verbose:
+            print(f"  pid={p.pid} -> RUNNING, quantum={p.quantum_left}")
         # determine slice
         t_until = p.time_until_next_syscall()
         run_for = self.time_quantum if t_until is None else min(self.time_quantum, t_until)
@@ -137,6 +150,8 @@ class System:
         t_after = p.time_until_next_syscall()
         if t_after == 0:
             # syscall boundary
+            if self.verbose:
+                print(f"  pid={p.pid} reached syscall boundary at cpu={p.cpu_time_executed}")
             self.push_event(self.current_time, EventType.SYSCALL_INVOKED, process=p)
         else:
             # quantum expired
@@ -226,15 +241,23 @@ class System:
         if reason == 'quantum':
             p.state = 'READY'
             self.scheduler.enqueue_ready(p)
+            if self.verbose:
+                print(f"  pid={p.pid} quantum expired -> READY")
         elif reason == 'io_block':
             p.state = 'BLOCKED'
+            if self.verbose:
+                print(f"  pid={p.pid} -> BLOCKED (I/O enqueued)")
         elif reason == 'wait_block':
             p.state = 'BLOCKED'
+            if self.verbose:
+                print(f"  pid={p.pid} -> BLOCKED (wait)")
         else:
             p.state = 'READY'
             p.blocked_reason = None
             p.waiting_for_children = False
             self.scheduler.enqueue_ready(p)
+            if self.verbose:
+                print(f"  pid={p.pid} unblocked -> READY")
         self._attempt_dispatch()
 
     def _handle_io_complete(self, ev: Event):
@@ -299,4 +322,6 @@ class System:
             complete_time = start_time + transfer_usecs
             payload = {'device': dev.name, 'request_id': request_id}
             self.push_event(complete_time, EventType.IO_COMPLETE, process=proc, payload=payload)
+            if self.verbose:
+                print(f"  BUS {dev.name} {op} pid={proc.pid} size={size}B speed={speed}Bps start@{start_time} done@{complete_time}")
             return
