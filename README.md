@@ -5,3 +5,8 @@ A simple Python implementation of Myscheduler. https://teaching.csse.uwa.edu.au/
 ```bash
 python3 myscheduler.py examples/sysconfig.txt examples/commands.txt
 ```
+
+# To test 
+```bash
+python3 -m pytest -q
+```
